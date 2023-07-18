@@ -118,6 +118,9 @@ public class Main {
 
         JSONObject json = new JSONObject();
 
+        json.put("lenght", string.length());
+        json.put("sub_lenght",sub.length());
+        json.put("test_times",testTimes);
         json.put("BWT_creation",timeBWTCreate);
         json.put("BWT_search",timeBWTSearch);
         json.put("BWT_search_parallel",timeBWTParallel);
