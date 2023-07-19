@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <windows.h>
 
 #define END '$'
 #define ALPHABET_DIMENSION 26
@@ -227,6 +228,12 @@ void free_bwt(bwt* string){
 
 int main(int argc, char* argv[]){
 
+    LARGE_INTEGER frequency;
+    LARGE_INTEGER t1, t2;
+    double time_elapsed;
+
+    QueryPerformanceFrequency(&frequency);
+
     int len_o=0;
 
     int len_s=0;
@@ -258,17 +265,17 @@ int main(int argc, char* argv[]){
 
     getline(&substring, &len_toread, stdin);
 
+    substring[len_s]='\0';
+
     scanf("%d\n", &times);
-
-    puts("Entro");
-
-    build_suf_arr(string);
-
-    puts("Entro");
 
     int i=0;
 
     printf("Original String: %s\n",string->string);
+
+    QueryPerformanceCounter(&t1);
+
+    build_suf_arr(string);
 
     int numeric_string[len_o+3];
 
@@ -285,12 +292,18 @@ int main(int argc, char* argv[]){
     }
     string->suff_arr[0]=len_o;
 
-    printf("Suffix Array: ");
-    for(i=0;i<len_o+1;i++) printf("%d ", string->suff_arr[i]);
-    puts("");
+    //printf("Suffix Array: ");
+    //for(i=0;i<len_o+1;i++) printf("%d ", string->suff_arr[i]);
+    //puts("");
 
     build_bwt(string);
     build_b_rank_cum_count(string);
+
+    QueryPerformanceCounter(&t2);
+
+    time_elapsed=(t2.QuadPart-t1.QuadPart)*1000.0/frequency.QuadPart;
+
+    printf("BWT Creation time: %f ms\n",time_elapsed);
 
     printf("BWT: %s\n",string->bwt);
     printf("B rank: ");
@@ -312,18 +325,51 @@ int main(int argc, char* argv[]){
     if(len_s>len_o) {printf("Substring longer than the string itself "); return 1; free_bwt(string);}
 
     puts("Searching with naif method...");
-    if(naif_search(string->string, len_o, substring, len_s)) puts("Found");
+
+    int result=0;
+
+    QueryPerformanceCounter(&t1);
+
+    result=naif_search(string->string, len_o, substring, len_s);
+
+    QueryPerformanceCounter(&t2);
+
+    if(result) puts("Found");
     else puts("Not found");
 
-    puts("Searching with optimized naif method...");
-    if(naif_search_optimized(string->string, len_o, substring, len_s)) puts("Found");
+    time_elapsed=(t2.QuadPart-t1.QuadPart)*1000.0/frequency.QuadPart;
+
+    printf("Substring search naif: %f ms\n",time_elapsed);
+
+    puts("Searching with naif method optimized...");
+
+    QueryPerformanceCounter(&t1);
+
+    result=naif_search_optimized(string->string, len_o, substring, len_s);
+
+    QueryPerformanceCounter(&t2);
+
+    if(result) puts("Found");
     else puts("Not found");
+
+    time_elapsed=(t2.QuadPart-t1.QuadPart)*1000.0/frequency.QuadPart;
+
+    printf("Substring search naif optimized: %f ms\n",time_elapsed);
 
     puts("Searching with default method...");
-    if(default_search(string->string, substring)) puts("Found");
+
+    QueryPerformanceCounter(&t1);
+
+    result=default_search(string->string, substring);
+
+    QueryPerformanceCounter(&t2);
+
+    if(result) puts("Found");
     else puts("Not found");
 
-    free_bwt(string);
+    time_elapsed=(t2.QuadPart-t1.QuadPart)*1000.0/frequency.QuadPart;
+
+    printf("Substring search default: %f ms\n",time_elapsed);
 
     return 1;
 }
