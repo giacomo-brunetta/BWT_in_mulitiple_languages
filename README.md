@@ -16,16 +16,19 @@ For simplicity, the B-ranks will be stored explicitly, instead of using indirect
 All programs need to perform the following tasks:
 - take a file as input
 - retrieve from the file:
-    - a string (its length is given for simplicity)
-    - the substring to search in the string (its length is given for simplicity)
-    - the number of times to search for the substring
+    - ```"str"```: a string
+    - ```"length"```: the string length
+    - ```"sub"```: the substring to search for
+    - ```"sublen"```: the substring length
+    - ```"times"```: the number of times to search for the substring
 - write on a different file the time it took to create each data structure and to perform all the queries
 
 The run configuration of any program should look like this:
 ```
 main TEST/[test_file]
 ```
-All the test files can be found in the ```TEST``` folder
+All the test files can be found in the ```TEST``` folder, while all the test results should be put in ```TEST_RESULT``` folder.
+
 The output file should be in JSON format and contain:
 - ```"language"```: the language the code is written in
 - ```"length"```: from input
