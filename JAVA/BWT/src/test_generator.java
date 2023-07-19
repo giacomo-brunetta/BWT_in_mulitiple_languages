@@ -1,6 +1,7 @@
 import org.json.simple.JSONObject;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 
@@ -57,22 +58,60 @@ public class test_generator {
         int len = Integer.parseInt(args[0]);
         int times = Integer.parseInt(args[1]);
         int sub_len = Integer.parseInt(args[2]);
+        String output_type = args[3];
 
-        json.put("length",len);
-        json.put("times",times);
+        outputType ot = outputType.fromString(output_type);
+
+        String file_content = "";
 
         String str = randomString(len);
-        json.put("str",str);
+        String sub = str.substring(str.length()-sub_len);
 
-        json.put("sublen",sub_len);
-        json.put("sub",str.substring(str.length()-sub_len));
+        switch (ot){
+            case JSON:
+                json.put("length",len);
+                json.put("times",times);
+
+                json.put("str",str);
+
+                json.put("sublen",sub_len);
+                json.put("sub",sub);
+                file_content = json.toJSONString();
+                break;
+            case TXT:
+               file_content = times + "\n" + len + "\n" + str + "\n" + sub_len + "\n" + sub;
+               break;
+            case Other:
+                System.out.println("Output type not supported!");
+                System.exit(0);
+        }
         try {
-            String filename = "test-" + len + "-" + times + "-" + sub_len + ".json";
+            String filename = "test-" + len + "-" + times + "-" + sub_len + "." +  ot.extention;
             FileWriter fileWriter = new FileWriter(filename);
-            fileWriter.write(json.toJSONString());
+            fileWriter.write(file_content);
             fileWriter.close();
+            System.out.println("Created: "+ filename);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private enum outputType{
+        JSON("json"),
+        TXT("txt"),
+        Other("");
+
+        private String extention;
+
+        outputType(String extention){
+            this.extention = extention;
+        }
+
+        static outputType fromString(String str){
+            return Arrays.stream(outputType.values())
+                    .filter(x -> x.extention.equalsIgnoreCase(str))
+                    .findFirst()
+                    .orElse(Other);
         }
     }
 }
