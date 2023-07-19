@@ -16,10 +16,10 @@ For simplicity, the B-ranks will be stored explicitly, instead of using indirect
 All programs need to perform the following tasks:
 - take a file as input
 - retrieve from the file:
-    - ```"str"```: a string
     - ```"length"```: the string length
-    - ```"sub"```: the substring to search for
+    - ```"str"```: a string
     - ```"sublen"```: the substring length
+    - ```"sub"```: the substring to search for
     - ```"times"```: the number of times to search for the substring
 - write on a different file the time it took to create each data structure and to perform all the queries
 
