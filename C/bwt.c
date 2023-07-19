@@ -169,7 +169,7 @@ void suffix_array(int* t, int* sa, int n, int k){
   return;
 }
 
-int naif_search_optimized(char* original, int length_o, char* substr, int length_s){
+int naif_search_optimized(char* original, int length_o, char* substr, int length_s, int times){
 
   int found=0;
   int partial=0;
@@ -179,14 +179,14 @@ int naif_search_optimized(char* original, int length_o, char* substr, int length
     if(original[i]==substr[j]) { j++; partial=1;}
     else if(partial) { j=0; partial=0; }
 
-    if(j==length_s) return 1;
+    if(j==length_s) { j=0; partial=0; found++;}
 
   }
 
-  return 0;
+  return found>=times;
 }
 
-int naif_search(char* original, int length_o, char* substr, int length_s){
+int naif_search(char* original, int length_o, char* substr, int length_s, int times){
 
   int found=0;
   int mismatch=0;
@@ -199,20 +199,25 @@ int naif_search(char* original, int length_o, char* substr, int length_s){
       while(!mismatch){
         if(original[i+j]!=substr[j]) mismatch=1;
         else j++;
-        if(j==length_s) return 1;
+        if(j==length_s) {found++;mismatch=1;}
       }
       mismatch=0;
     }
 
   }
 
-  return 0;
+  return found>=times;
 }
 
-int default_search(char* original, char* substr){
+int default_search(char* original, char* substr, int times){
 
-  if(strstr(original, substr)==NULL) return 0;
-  return 1;
+  int found=0;
+  char* next = strstr(original, substr);
+  while ( next != NULL ){
+    next = strstr(next+1, substr);
+    found++;
+  }
+  return found>=times;
 
 }
 
@@ -244,6 +249,8 @@ int main(int argc, char* argv[]){
 
     scanf("%d\n", &len_o);
 
+    printf("String length %d\n", len_o);
+
     bwt* string=malloc(sizeof(bwt));
 
     string->string=malloc(sizeof(char)*(len_o+2));
@@ -271,13 +278,13 @@ int main(int argc, char* argv[]){
 
     int i=0;
 
-    printf("Original String: %s\n",string->string);
+    //printf("Original String: %s\n",string->string);
 
     QueryPerformanceCounter(&t1);
 
     build_suf_arr(string);
 
-    int numeric_string[len_o+3];
+    int* numeric_string=malloc(sizeof(int)*(len_o+3));
 
     for(i=0;i<len_o;i++) numeric_string[i]=string->string[i]-'a'+1;
     numeric_string[len_o]=0;
@@ -285,6 +292,8 @@ int main(int argc, char* argv[]){
     numeric_string[len_o+2]=0;
 
     suffix_array(numeric_string, string->suff_arr, len_o, ALPHABET_DIMENSION);
+
+    free(numeric_string);
 
     //shift last character, should not be done in original algorithm
     for(int i=len_o;i>0;i--){
@@ -305,6 +314,7 @@ int main(int argc, char* argv[]){
 
     printf("BWT Creation time: %f ms\n",time_elapsed);
 
+    /*
     printf("BWT: %s\n",string->bwt);
     printf("B rank: ");
     for(i=0;i<len_o+1;i++) printf("%d ", string->b_rank[i]);
@@ -312,15 +322,27 @@ int main(int argc, char* argv[]){
     printf("Cumulative count: ");
     for(i=0;i<ALPHABET_DIMENSION;i++) printf("%d ", string->cum_count[i]);
     puts("");
+    */
 
-    char twb[len_o+1];
+    QueryPerformanceCounter(&t1);
+
+    char* twb=malloc(sizeof(char)*(len_o+1));
     twb[len_o]='\0';
     build_twb(string, twb);
-    printf("Original stirng from bwt: %s", twb);
-    puts("");
+
+    QueryPerformanceCounter(&t2);
+
+    time_elapsed=(t2.QuadPart-t1.QuadPart)*1000.0/frequency.QuadPart;
+
+    printf("TWB Creation time: %f ms\n",time_elapsed);
+
+    free(twb);
+
+    //printf("Original stirng from bwt: %s", twb);
+    //puts("");
 
     printf("Substring length %d\n", len_s);
-    printf("Substring: %s\n", substring);
+    //printf("Substring: %s\n", substring);
 
     if(len_s>len_o) {printf("Substring longer than the string itself "); return 1; free_bwt(string);}
 
@@ -330,7 +352,7 @@ int main(int argc, char* argv[]){
 
     QueryPerformanceCounter(&t1);
 
-    result=naif_search(string->string, len_o, substring, len_s);
+    result=naif_search(string->string, len_o, substring, len_s, times);
 
     QueryPerformanceCounter(&t2);
 
@@ -345,7 +367,7 @@ int main(int argc, char* argv[]){
 
     QueryPerformanceCounter(&t1);
 
-    result=naif_search_optimized(string->string, len_o, substring, len_s);
+    result=naif_search_optimized(string->string, len_o, substring, len_s, times);
 
     QueryPerformanceCounter(&t2);
 
@@ -360,7 +382,7 @@ int main(int argc, char* argv[]){
 
     QueryPerformanceCounter(&t1);
 
-    result=default_search(string->string, substring);
+    result=default_search(string->string, substring, times);
 
     QueryPerformanceCounter(&t2);
 
