@@ -14,26 +14,19 @@ typedef struct {
   int length;
 }bwt;
 
-void build_suf_arr(bwt* string, char* argv){
+void build_suf_arr(bwt* string){
 
-  int i=0;
-  for(i=0;i<string->length;i++){
-    string->string[i]=argv[i];
-    string->suff_arr[i]=i;
-  }
-  string->string[i]=END;
-  string->string[i+1]='\0';
-  string->suff_arr[i]=i;
+  for(int i=0;i<=string->length;i++) string->suff_arr[i]=i;
 
   return;
 }
 
-void build_bwt(bwt* string, char* argv){
+void build_bwt(bwt* string){
 
   string->bwt[string->length+1]='\0';
 
   for(int i=0;i<string->length+1;i++){
-    if(string->suff_arr[i]) string->bwt[i]=argv[string->suff_arr[i]-1];
+    if(string->suff_arr[i]) string->bwt[i]=string->string[string->suff_arr[i]-1];
     else string->bwt[i]=END;
   }
 
@@ -168,8 +161,6 @@ void suffix_array(int* t, int* sa, int n, int k){
 
   }
 
-
-
   free(r);
   free(sa12);
   free(r0);
@@ -226,7 +217,6 @@ int default_search(char* original, char* substr){
 
 void free_bwt(bwt* string){
 
-  free(string->string);
   free(string->bwt);
   free(string->suff_arr);
   free(string->b_rank);
@@ -237,16 +227,17 @@ void free_bwt(bwt* string){
 
 int main(int argc, char* argv[]){
 
-    if(argc <= 1){ printf("Insert a string"); return 0;}
-
-
     int len_o=0;
 
-    for(char* i=argv[1];*i!='\0';i++,len_o++);
+    int len_s=0;
 
-    printf("String length %d\n", len_o);
+    int times=0;
 
-    bwt* string= malloc(sizeof(bwt));
+    int len_toread=0;
+
+    scanf("%d\n", &len_o);
+
+    bwt* string=malloc(sizeof(bwt));
 
     string->string=malloc(sizeof(char)*(len_o+2));
     string->bwt=malloc(sizeof(char)*(len_o+1));
@@ -254,19 +245,37 @@ int main(int argc, char* argv[]){
     string->b_rank=malloc(sizeof(int)*(len_o+1));
     string->length=len_o;
 
-    build_suf_arr(string, argv[1]);
+    char* temp_string=NULL;
+    getline(&temp_string, &len_toread, stdin);
+
+    strncpy(string->string,temp_string,len_o);
+    string->string[len_o]=END;
+    string->string[len_o+1]='\0';
+
+    scanf("%d\n", &len_s);
+
+    char* substring=NULL;
+
+    getline(&substring, &len_toread, stdin);
+
+    scanf("%d\n", &times);
+
+    puts("Entro");
+
+    build_suf_arr(string);
+
+    puts("Entro");
 
     int i=0;
 
     printf("Original String: %s\n",string->string);
 
-    int numeric_string[len_o+4];
+    int numeric_string[len_o+3];
 
     for(i=0;i<len_o;i++) numeric_string[i]=string->string[i]-'a'+1;
     numeric_string[len_o]=0;
     numeric_string[len_o+1]=0;
     numeric_string[len_o+2]=0;
-    numeric_string[len_o+3]=0;
 
     suffix_array(numeric_string, string->suff_arr, len_o, ALPHABET_DIMENSION);
 
@@ -280,7 +289,7 @@ int main(int argc, char* argv[]){
     for(i=0;i<len_o+1;i++) printf("%d ", string->suff_arr[i]);
     puts("");
 
-    build_bwt(string, argv[1]);
+    build_bwt(string);
     build_b_rank_cum_count(string);
 
     printf("BWT: %s\n",string->bwt);
@@ -297,26 +306,21 @@ int main(int argc, char* argv[]){
     printf("Original stirng from bwt: %s", twb);
     puts("");
 
-    if(argc!=3) {printf("No susbstrings to search, program ends here"); return 1; free_bwt(string);}
-
-    int len_s=0;
-
-    for(char* i=argv[2];*i!='\0';i++,len_s++);
-
     printf("Substring length %d\n", len_s);
+    printf("Substring: %s\n", substring);
 
     if(len_s>len_o) {printf("Substring longer than the string itself "); return 1; free_bwt(string);}
 
     puts("Searching with naif method...");
-    if(naif_search(argv[1], len_o, argv[2], len_s)) puts("Found");
+    if(naif_search(string->string, len_o, substring, len_s)) puts("Found");
     else puts("Not found");
 
     puts("Searching with optimized naif method...");
-    if(naif_search_optimized(argv[1], len_o, argv[2], len_s)) puts("Found");
+    if(naif_search_optimized(string->string, len_o, substring, len_s)) puts("Found");
     else puts("Not found");
 
     puts("Searching with default method...");
-    if(default_search(argv[1], argv[2])) puts("Found");
+    if(default_search(string->string, substring)) puts("Found");
     else puts("Not found");
 
     free_bwt(string);
