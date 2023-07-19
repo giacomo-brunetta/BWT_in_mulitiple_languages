@@ -5,7 +5,7 @@
 We chose to compare languages in **substring searches**. The search can be done in 3 main approaches:
 - The naif **running window** or the equivalent default search algorithm proposed by the language standard;
 - The fast, but costly in terms of memory [**Suffix Trie**](https://en.wikipedia.org/wiki/Suffix_tree);
-- The not as fast, but very memory un-expensive [**Burrows-Wheeler Transform**](en.wikipedia.org/wiki/Burrows–Wheeler_transform).
+- The not as fast, but very memory un-expensive [**Burrows-Wheeler Transform**](https://en.wikipedia.org/wiki/Burrows–Wheeler_transform).
 
 A specific focus will be put on this last approach. Every code snippet should be able to **compute the direct and the inverse BWT**.
 For simplicity, the B-ranks will be stored explicitly, instead of using indirect approaches such as [**FM indexing**](https://en.wikipedia.org/wiki/FM-index).
@@ -32,7 +32,7 @@ All the test files can be found in the ```TEST``` folder, while all the test res
 The output file should be in JSON format and contain:
 - ```"language"```: the language the code is written in
 - ```"length"```: from input
-- ```"sub_lenght"```: from input
+- ```"sub_length"```: from input
 - ```"test_times"```: from input
 - ```"BWT_creation"```: time spent creating the BWT
 - ```"BWT_search"```: time spent searching n times the substring in the BWT
@@ -66,14 +66,14 @@ and it will generate the test file in the correct format.
 
 
 ### C
-| Feature | Status |
-| --- | :---: |
+| Feature |     Status     |
+| --- |:--------------:|
 | BWT | :green_circle: |
 | TWB | :green_circle: |
-| Bwt search | :red_circle: |
-| Bwt parallel search | :red_circle: |
-| Suffix Trie | :red_circle: |
-| Naive | :red_circle: |
+| Bwt search |  :red_circle:  |
+| Bwt parallel search |  :red_circle:  |
+| Suffix Trie |  :red_circle:  |
+| Naive | :green_circle: |
 
 
 
