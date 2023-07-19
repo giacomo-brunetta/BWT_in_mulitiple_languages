@@ -86,11 +86,12 @@ public class test_generator {
                 System.exit(0);
         }
         try {
-            String filename = "test-" + len + "-" + times + "-" + sub_len + "." +  ot.extention;
-            FileWriter fileWriter = new FileWriter(filename);
+            String fileName = "test-" + len + "-" + times + "-" + sub_len + "." +  ot.extention;
+            String folderName = "TEST/";
+            FileWriter fileWriter = new FileWriter(folderName +  fileName);
             fileWriter.write(file_content);
             fileWriter.close();
-            System.out.println("Created: "+ filename);
+            System.out.println("Created: "+ fileName);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
