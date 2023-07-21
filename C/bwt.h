@@ -21,7 +21,7 @@
 	double get_time_elapsed(){
 		return (((double)timer2)-((double)timer1))/CLOCKS_PER_SEC;
 	}
-	
+
 #elif WIN32
 
 	#include <windows.h>
@@ -38,12 +38,12 @@
 		QueryPerformanceCounter(&timer1);
 	}
 
-	void end_timer(LARGE_INTEGER* t){
+	void end_timer(){
 		QueryPerformanceCounter(&timer2);
 	}
 
 	double get_time_elapsed(){
-		return (timer2.QuadPart - timer1.Quadpart)*1000/frequency.Quadpart;
+		return ((double)(timer2.QuadPart - timer1.QuadPart))/frequency.QuadPart;
 	}
 
 #endif

@@ -306,7 +306,7 @@ int main(int argc, char* argv[]){
 
     end_timer();
 
-    printf("BWT Creation time: %f ms\n",get_time_elapsed());
+    printf("BWT Creation time: %f s\n",get_time_elapsed());
 
     /*
     printf("BWT: %s\n",string->bwt);
