@@ -1,2 +1,9 @@
 gcc -O2 -g3 bwt.c -o bwt
 
+valgrind --tool=callgrind --callgrind-out-file=bwtstatsc ./bwt < TEST/test.txt
+
+kcachegrind bwtstatsc
+
+valgrind --tool=massif --massif-out-file=bwtstatsm ./bwt < TEST/test.txt
+
+massif-visualizer bwtstatsm
