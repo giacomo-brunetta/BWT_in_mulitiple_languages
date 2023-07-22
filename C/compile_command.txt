@@ -1,0 +1,2 @@
+gcc -O2 -g3 bwt.c -o bwt
+

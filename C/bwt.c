@@ -55,9 +55,9 @@ void build_b_rank_cum_count(bwt* string){
   int count;
 
   for(char c = 'b'; c <= 'z'; c++){
-      count = string->cum_count[c-'a'];
-      string->cum_count[c-'a'] = offset;
-      offset += count;
+    count = string->cum_count[c-'a'];
+    string->cum_count[c-'a'] = offset;
+    offset += count;
   }
 
   return;
@@ -197,9 +197,9 @@ int naif_search(char* original, int length_o, char* substr, int length_s, int ti
 
       int j=1;
       while(!mismatch){
-        if(original[i+j]!=substr[j]) mismatch=1;
-        else j++;
-        if(j==length_s) {found++;mismatch=1;}
+	if(original[i+j]!=substr[j]) mismatch=1;
+	else j++;
+	if(j==length_s) {found++;mismatch=1;}
       }
       mismatch=0;
     }
@@ -221,6 +221,41 @@ int default_search(char* original, char* substr, int times){
 
 }
 
+
+int bwt_search(bwt* string, char* substr, int substr_len,  int times){
+
+  int found=0;
+
+  if(substr[substr_len-1]-'a'==ALPHABET_DIMENSION-1 && string->cum_count[substr[substr_len-1]-'a']==string->length) return 0;
+
+  if(string->cum_count[substr[substr_len-1]-'a']==string->cum_count[substr[substr_len-1]-'a'+1]) return 0;	  
+
+  int iterations= substr[substr_len-1]-'a' != ALPHABET_DIMENSION-1 ? 
+    string->cum_count[substr[substr_len-1]-'a'+1] - string->cum_count[substr[substr_len-1]-'a'] :
+    string->length - string->cum_count[substr[substr_len-1]-'a'];
+
+  for(int i=0;i<iterations;i++){
+
+    int match=1;
+    int index=i+string->cum_count[substr[substr_len-1]-'a'];
+    int pos_substr=substr_len-1;
+
+    while(match){
+
+      if(--pos_substr < 0){ found++; match=0; }
+
+      else if(string->bwt[index]!=substr[pos_substr]) match=0;
+
+      else index=string->cum_count[string->bwt[index]-'a']+string->b_rank[index];
+
+    }
+
+  }
+
+  return found>=times;
+
+}
+
 void free_bwt(bwt* string){
 
   free(string->bwt);
@@ -233,151 +268,166 @@ void free_bwt(bwt* string){
 
 int main(int argc, char* argv[]){
 
-    set_frequency();
+  set_frequency();
 
-    int len_o=0;
+  int len_o=0;
 
-    int len_s=0;
+  int len_s=0;
 
-    int times=0;
+  int times=0;
 
-    size_t len_toread=0;
+  size_t len_toread=0;
 
-    scanf("%d\n", &len_o);
+  scanf("%d\n", &len_o);
 
-    printf("String length %d\n", len_o);
+  printf("String length %d\n", len_o);
 
-    bwt* string=malloc(sizeof(bwt));
+  bwt* string=malloc(sizeof(bwt));
 
-    string->string=malloc(sizeof(char)*(len_o+2));
-    string->bwt=malloc(sizeof(char)*(len_o+1));
-    string->suff_arr=malloc(sizeof(int)*(len_o+1));
-    string->b_rank=malloc(sizeof(int)*(len_o+1));
-    string->length=len_o;
+  string->string=malloc(sizeof(char)*(len_o+2));
+  string->bwt=malloc(sizeof(char)*(len_o+1));
+  string->suff_arr=malloc(sizeof(int)*(len_o+1));
+  string->b_rank=malloc(sizeof(int)*(len_o+1));
+  string->length=len_o;
 
-    char* temp_string=NULL;
-    getline(&temp_string, &len_toread, stdin);
+  char* temp_string=NULL;
+  getline(&temp_string, &len_toread, stdin);
 
-    strncpy(string->string,temp_string,len_o);
-    string->string[len_o]=END;
-    string->string[len_o+1]='\0';
+  strncpy(string->string,temp_string,len_o);
+  string->string[len_o]=END;
+  string->string[len_o+1]='\0';
 
-    scanf("%d\n", &len_s);
+  scanf("%d\n", &len_s);
 
-    char* substring=NULL;
+  char* substring=NULL;
 
-    getline(&substring, &len_toread, stdin);
+  getline(&substring, &len_toread, stdin);
 
-    substring[len_s]='\0';
+  substring[len_s]='\0';
 
-    scanf("%d\n", &times);
+  scanf("%d\n", &times);
 
-    int i=0;
+  int i=0;
 
-    //printf("Original String: %s\n",string->string);
+  //printf("Original String: %s\n",string->string);
 
-    start_timer();
+  start_timer();
 
-    build_suf_arr(string);
+  build_suf_arr(string);
 
-    int* numeric_string=malloc(sizeof(int)*(len_o+3));
+  int* numeric_string=malloc(sizeof(int)*(len_o+3));
 
-    for(i=0;i<len_o;i++) numeric_string[i]=string->string[i]-'a'+1;
-    numeric_string[len_o]=0;
-    numeric_string[len_o+1]=0;
-    numeric_string[len_o+2]=0;
+  for(i=0;i<len_o;i++) numeric_string[i]=string->string[i]-'a'+1;
+  numeric_string[len_o]=0;
+  numeric_string[len_o+1]=0;
+  numeric_string[len_o+2]=0;
 
-    suffix_array(numeric_string, string->suff_arr, len_o, ALPHABET_DIMENSION);
+  suffix_array(numeric_string, string->suff_arr, len_o, ALPHABET_DIMENSION);
 
-    free(numeric_string);
+  free(numeric_string);
 
-    //shift last character, should not be done in original algorithm
-    for(int i=len_o;i>0;i--){
-        string->suff_arr[i]=string->suff_arr[i-1];
-    }
-    string->suff_arr[0]=len_o;
+  //shift last character, should not be done in original algorithm
+  for(int i=len_o;i>0;i--){
+    string->suff_arr[i]=string->suff_arr[i-1];
+  }
+  string->suff_arr[0]=len_o;
 
-    //printf("Suffix Array: ");
-    //for(i=0;i<len_o+1;i++) printf("%d ", string->suff_arr[i]);
-    //puts("");
+  //printf("Suffix Array: ");
+  //for(i=0;i<len_o+1;i++) printf("%d ", string->suff_arr[i]);
+  //puts("");
 
-    build_bwt(string);
-    build_b_rank_cum_count(string);
+  build_bwt(string);
+  build_b_rank_cum_count(string);
 
-    end_timer();
+  end_timer();
 
-    printf("BWT Creation time: %f s\n",get_time_elapsed());
+  printf("BWT Creation time: %f s\n",get_time_elapsed());
 
-    /*
-    printf("BWT: %s\n",string->bwt);
-    printf("B rank: ");
-    for(i=0;i<len_o+1;i++) printf("%d ", string->b_rank[i]);
-    puts("");
-    printf("Cumulative count: ");
-    for(i=0;i<ALPHABET_DIMENSION;i++) printf("%d ", string->cum_count[i]);
-    puts("");
-    */
+/*
+  printf("BWT: %s\n",string->bwt);
 
-    start_timer();
+  printf("B rank: ");
+  for(i=0;i<len_o+1;i++) printf("%d ", string->b_rank[i]);
+  puts("");
 
-    char* twb=malloc(sizeof(char)*(len_o+1));
-    twb[len_o]='\0';
-    build_twb(string, twb);
+  printf("Cumulative count: ");
+  for(i=0;i<ALPHABET_DIMENSION;i++) printf("%d ", string->cum_count[i]);
+  puts("");
+*/
 
-    end_timer();
+  start_timer();
 
-    printf("TWB Creation time: %f s\n",get_time_elapsed());
+  char* twb=malloc(sizeof(char)*(len_o+1));
+  twb[len_o]='\0';
+  build_twb(string, twb);
 
-    free(twb);
+  end_timer();
 
-    //printf("Original stirng from bwt: %s", twb);
-    //puts("");
+  printf("TWB Creation time: %f s\n",get_time_elapsed());
 
-    printf("Substring length %d\n", len_s);
-    //printf("Substring: %s\n", substring);
+  free(twb);
 
-    if(len_s>len_o) {printf("Substring longer than the string itself "); return 1; free_bwt(string);}
+  //printf("Original stirng from bwt: %s", twb);
+  //puts("");
 
-    puts("Searching with naif method...");
+  printf("Substring length %d\n", len_s);
+  //printf("Substring: %s\n", substring);
 
-    int result=0;
+  if(len_s>len_o) {printf("Substring longer than the string itself "); return 1; free_bwt(string);}
 
-    start_timer();
+  puts("Searching with naif method...");
 
-    result=naif_search(string->string, len_o, substring, len_s, times);
+  int result=0;
 
-    end_timer();
+  start_timer();
 
-    if(result) puts("Found");
-    else puts("Not found");
+  result=naif_search(string->string, len_o, substring, len_s, times);
 
-    printf("Substring search naif: %f s\n",get_time_elapsed());
+  end_timer();
 
-    puts("Searching with naif method optimized...");
+  if(result) puts("Found");
+  else puts("Not found");
 
-    start_timer();
+  printf("Substring search naif: %f s\n",get_time_elapsed());
 
-    result=naif_search_optimized(string->string, len_o, substring, len_s, times);
+  puts("Searching with naif method optimized...");
 
-    end_timer();
+  start_timer();
 
-    if(result) puts("Found");
-    else puts("Not found");
+  result=naif_search_optimized(string->string, len_o, substring, len_s, times);
 
-    printf("Substring search naif optimized: %f s\n",get_time_elapsed());
+  end_timer();
 
-    puts("Searching with default method...");
+  if(result) puts("Found");
+  else puts("Not found");
 
-    start_timer();
+  printf("Substring search naif optimized: %f s\n",get_time_elapsed());
 
-    result=default_search(string->string, substring, times);
+  puts("Searching with default method...");
 
-    end_timer();
+  start_timer();
 
-    if(result) puts("Found");
-    else puts("Not found");
+  result=default_search(string->string, substring, times);
 
-    printf("Substring search default: %f s\n",get_time_elapsed());
+  end_timer();
 
-    return 1;
+  if(result) puts("Found");
+  else puts("Not found");
+
+  printf("Substring search default: %f s\n",get_time_elapsed());
+
+  puts("Searching using bwt...");
+
+  start_timer();
+
+  result=bwt_search(string, substring, len_s, times);
+
+  end_timer();
+
+  if(result) puts("Found");
+  else puts("Not found");
+
+  printf("Substring search bwt: %f s\n",get_time_elapsed());
+
+  return 1;
 }
