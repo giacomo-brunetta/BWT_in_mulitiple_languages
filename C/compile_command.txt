@@ -1,9 +1,9 @@
-gcc -O2 -g3 bwt.c -o bwt
+make
 
-valgrind --tool=callgrind --callgrind-out-file=bwtstatsc ./bwt < TEST/test.txt
+valgrind --tool=callgrind --callgrind-out-file=stats/bwtstatsc ./main < TEST/test.txt
 
-kcachegrind bwtstatsc
+kcachegrind stats/bwtstatsc
 
-valgrind --tool=massif --massif-out-file=bwtstatsm ./bwt < TEST/test.txt
+valgrind --tool=massif --massif-out-file=stats/bwtstatsm ./main < TEST/test.txt
 
-massif-visualizer bwtstatsm
+massif-visualizer stats/bwtstatsm
