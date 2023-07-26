@@ -1,0 +1,12 @@
+{
+  "language": "C",
+  "length": 11980,
+  "sub_length": 9,
+  "test_times": 20,
+  "BWT_creation": 0.002683,
+  "BWT_search": 0.000009,
+  "BWT_search_parallel": "Infinite",
+  "ST_creation": 4.849888,
+  "ST_search": 0.001666,
+  "NAIF_search": 0.000057
+}

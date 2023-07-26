@@ -71,6 +71,27 @@ int default_search_once(char* original, char* substr){
 
 }
 
+void create_output_file(int len_o, int len_s, int times, double time_bwt_create, double time_bwt_search, double time_st_create, double time_st_search, double time_naif_search){
+
+  FILE* f=fopen("RESULT/result.json","w");
+  
+  fprintf(f,"{\n");
+  fprintf(f,"  \"language\": \"C\",\n");
+  fprintf(f,"  \"length\": %d,\n",len_o);
+  fprintf(f,"  \"sub_length\": %d,\n", len_s);
+  fprintf(f,"  \"test_times\": %d,\n", times);
+  fprintf(f,"  \"BWT_creation\": %f,\n",time_bwt_create);
+  fprintf(f,"  \"BWT_search\": %f,\n",time_bwt_search);
+  fprintf(f,"  \"BWT_search_parallel\": \"Infinite\",\n");
+  fprintf(f,"  \"ST_creation\": %f,\n", time_st_create);
+  fprintf(f,"  \"ST_search\": %f,\n", time_st_search);
+  fprintf(f,"  \"NAIF_search\": %f\n", time_naif_search);
+  fprintf(f,"}\n");
+
+  fclose(f);
+
+}
+
 
 int main(int argc, char* argv[]){
 
@@ -81,6 +102,12 @@ int main(int argc, char* argv[]){
   int len_s=0;
 
   int times=0;
+
+  double time_bwt_create=0;
+  double time_bwt_search=0;
+  double time_st_create=0;
+  double time_st_search=0;
+  double time_naif_search=0;
 
   size_t len_toread=0;
 
@@ -147,7 +174,9 @@ int main(int argc, char* argv[]){
 
   end_timer();
 
-  printf("BWT Creation time: %f s\n",get_time_elapsed());
+  time_bwt_create=get_time_elapsed();
+
+  printf("BWT Creation time: %f s\n",time_bwt_create);
 
 /*
   printf("BWT: %s\n",string->bwt);
@@ -194,7 +223,9 @@ int main(int argc, char* argv[]){
   if(result) puts("Found");
   else puts("Not found");
 
-  printf("Substring search naif: %f s\n",get_time_elapsed());
+  time_naif_search=get_time_elapsed();
+
+  printf("Substring search naif: %f s\n",time_naif_search);
 
   puts("Searching with naif method once...");
 
@@ -246,7 +277,9 @@ int main(int argc, char* argv[]){
   if(result) puts("Found");
   else puts("Not found");
 
-  printf("Substring search bwt: %f s\n",get_time_elapsed());
+  time_bwt_search=get_time_elapsed();
+
+  printf("Substring search bwt: %f s\n",time_bwt_search);
 
   puts("Searching using bwt once...");
 
@@ -272,7 +305,9 @@ int main(int argc, char* argv[]){
 
   end_timer();
 
-  printf("Suffix trie created: %f s\n", get_time_elapsed());
+  time_st_create=get_time_elapsed();
+
+  printf("Suffix trie created: %f s\n", time_st_create);
 
   puts("Searching using suffix trie...");
   
@@ -285,7 +320,9 @@ int main(int argc, char* argv[]){
   if(result) puts("Found");
   else puts("Not found");
 
-  printf("Substring search suffix trie: %f s\n",get_time_elapsed());
+  time_st_search=get_time_elapsed();
+
+  printf("Substring search suffix trie: %f s\n",time_st_search);
 
   puts("Searching using suffix trie but just once...");
 
@@ -299,6 +336,8 @@ int main(int argc, char* argv[]){
   else puts("Not found");
 
   printf("Substring search suffix trie once: %f s\n",get_time_elapsed());
+
+  create_output_file(len_o, len_s, times, time_bwt_create, time_bwt_search, time_st_create, time_st_search, time_naif_search);
 
   return 1;
 }
