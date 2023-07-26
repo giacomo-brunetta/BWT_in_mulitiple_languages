@@ -3,24 +3,8 @@
 #include <string.h>
 #include "main.h"
 #include "bwt.h"
+#include "suffix_trie.h"
 #include "constants.h"
-
-int naif_search_optimized(char* original, int length_o, char* substr, int length_s, int times){
-
-  int found=0;
-  int partial=0;
-
-  for(int i=0, j=0;i<=length_o;i++){
-
-    if(original[i]==substr[j]) { j++; partial=1;}
-    else if(partial) { j=0; partial=0; }
-
-    if(j==length_s) { j=0; partial=0; found++;}
-
-  }
-
-  return found>=times;
-}
 
 int naif_search(char* original, int length_o, char* substr, int length_s, int times){
 
@@ -45,6 +29,29 @@ int naif_search(char* original, int length_o, char* substr, int length_s, int ti
   return found>=times;
 }
 
+int naif_search_once(char* original, int length_o, char* substr, int length_s){
+
+  int mismatch=0;
+
+  for(int i=0;i<length_o-length_s+1;i++){
+
+    if(original[i]==substr[0]){
+
+      int j=1;
+      while(!mismatch){
+        if(original[i+j]!=substr[j]) mismatch=1;
+        else j++;
+        if(j==length_s) return 1;
+      }
+      mismatch=0;
+    }
+
+  }
+
+  return 0;
+}
+
+
 int default_search(char* original, char* substr, int times){
 
   int found=0;
@@ -57,9 +64,15 @@ int default_search(char* original, char* substr, int times){
 
 }
 
-int main(int argc, char* argv[]){
+int default_search_once(char* original, char* substr){
 
-	//changed
+  if(strstr(original, substr)!=NULL)return 1;
+  return 0;
+
+}
+
+
+int main(int argc, char* argv[]){
 
   set_frequency();
 
@@ -183,18 +196,18 @@ int main(int argc, char* argv[]){
 
   printf("Substring search naif: %f s\n",get_time_elapsed());
 
-  puts("Searching with naif method optimized...");
+  puts("Searching with naif method once...");
 
   start_timer();
 
-  result=naif_search_optimized(string->string, len_o, substring, len_s, times);
+  result=naif_search_once(string->string, len_o, substring, len_s);
 
   end_timer();
 
   if(result) puts("Found");
   else puts("Not found");
 
-  printf("Substring search naif optimized: %f s\n",get_time_elapsed());
+  printf("Substring search naif once: %f s\n",get_time_elapsed());
 
   puts("Searching with default method...");
 
@@ -209,6 +222,19 @@ int main(int argc, char* argv[]){
 
   printf("Substring search default: %f s\n",get_time_elapsed());
 
+  puts("Searching with default method once...");
+
+  start_timer();
+
+  result=default_search_once(string->string, substring);
+
+  end_timer();
+
+  if(result) puts("Found");
+  else puts("Not found");
+
+  printf("Substring search default once: %f s\n",get_time_elapsed());
+
   puts("Searching using bwt...");
 
   start_timer();
@@ -221,6 +247,58 @@ int main(int argc, char* argv[]){
   else puts("Not found");
 
   printf("Substring search bwt: %f s\n",get_time_elapsed());
+
+  puts("Searching using bwt once...");
+
+  start_timer();
+
+  result=bwt_search_once(string, substring, len_s);
+
+  end_timer();
+
+  if(result) puts("Found");
+  else puts("Not found");
+
+  printf("Substring search bwt once: %f s\n",get_time_elapsed());
+
+  puts("Creating suffix trie...");
+
+  start_timer();
+
+  struct suffix_trie* root=malloc(sizeof(struct suffix_trie));
+  initialize_suffix_trie_node(&root);
+
+  create_suffix_trie(&root, string->string, len_o);
+
+  end_timer();
+
+  printf("Suffix trie created: %f s\n", get_time_elapsed());
+
+  puts("Searching using suffix trie...");
+  
+  start_timer();
+
+  result=suffix_trie_search(root, substring, len_s, times);
+
+  end_timer();
+
+  if(result) puts("Found");
+  else puts("Not found");
+
+  printf("Substring search suffix trie: %f s\n",get_time_elapsed());
+
+  puts("Searching using suffix trie but just once...");
+
+  start_timer();
+
+  result=suffix_trie_search_once(root, substring, len_s);
+
+  end_timer();
+
+  if(result) puts("Found");
+  else puts("Not found");
+
+  printf("Substring search suffix trie once: %f s\n",get_time_elapsed());
 
   return 1;
 }

@@ -70,9 +70,9 @@ and it will generate the test file in the correct format.
 | --- |:--------------:|
 | BWT | :green_circle: |
 | TWB | :green_circle: |
-| Bwt search |  :red_circle:  |
+| Bwt search | :green_circle: |
 | Bwt parallel search |  :red_circle:  |
-| Suffix Trie |  :red_circle:  |
+| Suffix Trie | :green_circle: |
 | Naive | :green_circle: |
 
 

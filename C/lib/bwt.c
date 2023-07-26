@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include "bwt.h"
+#include <stdlib.h>
 
 void changed(){return ;}
 
@@ -190,6 +190,39 @@ int bwt_search(bwt* string, char* substr, int substr_len,  int times){
   return found>=times;
 
 }
+
+int bwt_search_once(bwt* string, char* substr, int substr_len){
+
+  if(substr[substr_len-1]-'a'==ALPHABET_DIMENSION-1 && string->cum_count[substr[substr_len-1]-'a']==string->length) return 0;
+
+  if(string->cum_count[substr[substr_len-1]-'a']==string->cum_count[substr[substr_len-1]-'a'+1]) return 0;
+
+  int iterations= substr[substr_len-1]-'a' != ALPHABET_DIMENSION-1 ?
+    string->cum_count[substr[substr_len-1]-'a'+1] - string->cum_count[substr[substr_len-1]-'a'] :
+    string->length - string->cum_count[substr[substr_len-1]-'a'];
+
+  for(int i=0;i<iterations;i++){
+
+    int match=1;
+    int index=i+string->cum_count[substr[substr_len-1]-'a'];
+    int pos_substr=substr_len-1;
+
+    while(match){
+
+      if(--pos_substr < 0) return 1;
+
+      else if(string->bwt[index]!=substr[pos_substr]) match=0;
+
+      else index=string->cum_count[string->bwt[index]-'a']+string->b_rank[index];
+
+    }
+
+  }
+
+  return 0;
+
+}
+
 
 void free_bwt(bwt* string){
 

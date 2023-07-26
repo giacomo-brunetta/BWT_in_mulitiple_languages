@@ -30,6 +30,8 @@ void suffix_array(int* t, int* sa, int n, int k);
 
 int bwt_search(bwt* string, char* substr, int substr_len, int times);
 
+int bwt_search_once(bwt* string, char* substr, int substr_len);
+
 void free_bwt(bwt* string);
 
 #endif

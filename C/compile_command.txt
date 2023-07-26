@@ -1,8 +1,9 @@
 //LINUX
 make
 //WINDOWS
-gcc -O2 -Wall -g3 lib/main.c lib/bwt.c -o main
+gcc -O2 -Wall -g3 lib/main.c lib/bwt.c lib/suffix_trie.c -o main
 
+//TOOLS FOR VISUALIZING TIME AND MEMORY USAGE
 valgrind --tool=callgrind --callgrind-out-file=stats/bwtstatsc ./main < TEST/test.txt
 
 kcachegrind stats/bwtstatsc
