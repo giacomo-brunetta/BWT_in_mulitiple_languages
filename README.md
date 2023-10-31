@@ -1,8 +1,8 @@
 # Experiment with languages
  This repo was created to experiment with different programming languages. The goal is to code up the same algorithms in as many languages as possible to compare the different approaches to the problem and the different options that they offer.
 
- ## The algorithms we chose to implement
-We chose to compare languages in **substring search**, specifically with algorithms studied by the creators of the repository in the "Bioinformatics Algorithms" course in Politecnico di Milano.
+ ## Substring search
+We chose to compare languages in **substring search**, specifically with algorithms studied in the "Bioinformatics Algorithms" course in Politecnico di Milano.
 
 The search can be done in 3 main approaches:
 - The naif **running window** or the equivalent default search algorithm proposed by the language standard;
