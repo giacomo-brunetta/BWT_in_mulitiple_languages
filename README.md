@@ -1,8 +1,10 @@
-# Multi Language Experiments
- This repo is created to experiment with different programming languages. The goal is to code up the same algorithms in as many languages as possible to compare the different approaches to the problem and the different options that they offer.
+# Experiment with languages
+ This repo was created to experiment with different programming languages. The goal is to code up the same algorithms in as many languages as possible to compare the different approaches to the problem and the different options that they offer.
 
  ## The algorithms we chose to implement
-We chose to compare languages in **substring searches**. The search can be done in 3 main approaches:
+We chose to compare languages in **substring search**, specifically with algorithms studied by the creators of the repository in the "Bioinformatics Algorithms" course in Politecnico di Milano.
+
+The search can be done in 3 main approaches:
 - The naif **running window** or the equivalent default search algorithm proposed by the language standard;
 - The fast, but costly in terms of memory [**Suffix Trie**](https://en.wikipedia.org/wiki/Suffix_tree);
 - The not as fast, but very memory un-expensive [**Burrows-Wheeler Transform**](https://en.wikipedia.org/wiki/Burrows–Wheeler_transform).
